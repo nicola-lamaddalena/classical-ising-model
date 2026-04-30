@@ -1,6 +1,7 @@
-import os, sys
+import os
+import sys
+import argparse
 from pathlib import Path
-from matplotlib import use
 import numpy as np
 import matplotlib.pyplot as plt
 from matplotlib.animation import FuncAnimation
@@ -25,11 +26,20 @@ def animate(frame, q, U, V, N, frame_text):
     return q, frame_text
 
 def main():
-    try:
-        N = int(sys.argv[1])
-    except (IndexError, ValueError): 
-        print("Number of points (N) not found or invalid. Using N=50")
-        N = 50
+    parser = argparse.ArgumentParser(
+            description="Classical 2D Ising model simulation",
+            formatter_class=argparse.ArgumentDefaultsHelpFormatter
+            )
+    parser.add_argument("N", type=int, nargs="?", default=50, help="Lattice dimension (NxN")
+    parser.add_argument("-f", "--file", type=str, help="Choose a name for the animation file")
+    parser.add_argument("-t", "--temperature", type=float, default=2.269, help="Temperature of the system")
+    parser.add_argument("-j", "--interaction", type=float, default=1.0, help="Interaction factor J")
+    parser.add_argument("--view", action="store_true", help="View existing animation without simulating")
+    args = parser.parse_args()
+
+    N = args.N
+    T = args.temperature
+    J = args.interaction
 
     user_input = input("Enter a filename for the animation (default: ising): ").strip()
     base_name = user_input if user_input else "ising"
@@ -40,7 +50,7 @@ def main():
         os.system(f"xdg-open {filename.absolute()}")
         sys.exit()
 
-    print(f"Filename determined: {filename.name}. Starting simulation...")
+    print(f"Filename determined: {filename.name}. Starting simulation with N={N}, T={T}, J={J}")
 
     X, Y = np.meshgrid(np.arange(0, N, 1), np.arange(0, N, 1))
     U, V = np.zeros_like(X), np.random.choice([-1, 1], size=(N, N))
