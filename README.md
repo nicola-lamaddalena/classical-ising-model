@@ -1,1 +1,1 @@
-![Ising Model Simulation](ising_50.gif)
+![Ising Model Simulation](ising_100.gif)

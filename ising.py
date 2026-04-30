@@ -45,7 +45,7 @@ def main():
         print("Number of points (N) not found. Using N=50")
         N = 50
 
-    std_filename = "ising.gif"
+    std_filename = "ising"
     filename = input("Enter a filename for the animation: ")
 
     if filename == "":
@@ -54,7 +54,7 @@ def main():
     
     filename.split(".")[0]
     filename += f"_{N}.gif"
-    print(f"Valid filename: using {filename}.gif")
+    print(f"Valid filename: using {filename}.")
 
     if os.path.isfile(filename):
         print(f"{filename} found in the directory. Visualizing {filename}.")
@@ -67,7 +67,7 @@ def main():
     plt.style.use("dark_background")
     fig, ax = plt.subplots()
     ax.set_title(f"Lattice with {N} points, J={J}, h={H}, T={T}")
-    q = ax.quiver(X, Y, U, V, V, cmap="RdBu", pivot="mid")
+    q = ax.quiver(X, Y, U, V, V, cmap="YlGnBu", pivot="mid")
 
     ani = FuncAnimation(
         fig,
@@ -83,8 +83,6 @@ def main():
     inp = input(f"{filename} saved. Press enter to visualize the gif. (enter/no?) ")
     if inp.lower != "no":
         os.system(f"xdg-open ./{filename}") 
-    else:
-        sys.exit()
 
 if __name__ == "__main__":
     main()
