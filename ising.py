@@ -3,7 +3,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 from matplotlib.animation import FuncAnimation
 
-J, H, T = 1.0, 0.0, 1.5
+J, H, T = 1.0, 0.0, 2.269
 
 def metropolis(lattice, N, J, h, T):
     """Metropolis algorithm for classical Ising model:
@@ -31,12 +31,13 @@ def metropolis(lattice, N, J, h, T):
         if np.random.random() < np.exp(-delta_energy / (kb * T)):
             lattice[i, j] *= -1
 
-def animate(frame, q, U, V, N):
+def animate(frame, q, U, V, N, frame_text):
     for _ in range(N * N):
         metropolis(V, N, J, H, T)
     q.set_UVC(U, V, V)
+    frame_text.set_text(f"Frame: {frame}.")
 
-    return q, 
+    return q, frame_text
 
 def main():
     try:
@@ -50,11 +51,12 @@ def main():
 
     if filename == "":
         filename = std_filename + f"_{N}.gif"
-        print("Invalid value. Using {filename}.")
+        print(f"Invalid value. Using {filename}.")
     
-    filename.split(".")[0]
-    filename += f"_{N}.gif"
-    print(f"Valid filename: using {filename}.")
+    else:
+        filename = filename.split(".")[0]
+        filename += f"_{N}.gif"
+        print(f"Valid filename: using {filename}.")
 
     if os.path.isfile(filename):
         print(f"{filename} found in the directory. Visualizing {filename}.")
@@ -66,23 +68,25 @@ def main():
     
     plt.style.use("dark_background")
     fig, ax = plt.subplots()
+    props = {"boxstyle": "round", "facecolor": "white", "alpha": 0.9, "edgecolor": "none"}
+    frame_text = ax.text(0.02, 0.95, "", transform=ax.transAxes, color="black", bbox=props)
     ax.set_title(f"Lattice with {N} points, J={J}, h={H}, T={T}")
     q = ax.quiver(X, Y, U, V, V, cmap="YlGnBu", pivot="mid")
 
     ani = FuncAnimation(
         fig,
         animate,
-        fargs=(q, U, V, N),
-        frames=100,
-        interval=60,
+        fargs=(q, U, V, N, frame_text),
+        frames=180,
+        interval=40,
         blit=True
     )
     
     print(f"Saving {filename}...")
-    ani.save(filename=filename, writer="pillow")
+    ani.save(filename=f"./animations/{filename}", writer="pillow")
     inp = input(f"{filename} saved. Press enter to visualize the gif. (enter/no?) ")
-    if inp.lower != "no":
-        os.system(f"xdg-open ./{filename}") 
+    if inp.lower() != "no":
+        os.system(f"xdg-open ./animations/{filename}") 
 
 if __name__ == "__main__":
     main()

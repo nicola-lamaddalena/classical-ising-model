@@ -1,1 +1,1 @@
-![Ising Model Simulation](ising_100.gif)
+![Ising Model Simulation](./animations/ising_100.gif)
