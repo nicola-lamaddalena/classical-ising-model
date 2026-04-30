@@ -1,5 +1,7 @@
 import numpy as np
 
+rng = np.random.default_rng(seed=42)
+
 def metropolis(lattice, N, J, h, T):
     """Metropolis algorithm for classical Ising model:
     choose a random point in the lattice and compute the variation of energy;
@@ -8,7 +10,7 @@ def metropolis(lattice, N, J, h, T):
     """
 
     kb = 1.0
-    i, j = np.random.randint(0, N, size=2)
+    i, j = rng.integers(0, N, size=2)
     spin = lattice[i, j]
     """ Sum over the nearest neighbors:
             [i-1,j]
@@ -23,5 +25,5 @@ def metropolis(lattice, N, J, h, T):
         #The spin has only two values: +1, -1
         lattice[i, j] *= -1
     else:
-        if np.random.random() < np.exp(-delta_energy / (kb * T)):
+        if rng.random() < np.exp(-delta_energy / (kb * T)):
             lattice[i, j] *= -1

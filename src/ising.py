@@ -60,7 +60,7 @@ def main():
     props = {"boxstyle": "round", "facecolor": "white", "alpha": 0.9, "edgecolor": "none"}
     frame_text = ax.text(0.02, 0.95, "", transform=ax.transAxes, color="black", bbox=props)
     ax.set_title(f"Lattice with {N} points, J={J}, h={H}, T={T}")
-    q = ax.quiver(X, Y, U, V, V, cmap="YlGnBu", pivot="mid")
+    q = ax.quiver(X, Y, U, V, V, cmap="bwr", pivot="mid")
 
     ani = FuncAnimation(
         fig,
@@ -72,7 +72,7 @@ def main():
     )
     
     print(f"Saving {filename}...")
-    ani.save(filename=filename, writer="pillow")
+    ani.save(filename=filename, writer="pillow", dpi=200)
     inp = input(f"{filename.name} saved. Press enter to visualize, or type 'no': ")
     if inp.lower() != "no":
         os.system(f"xdg-open {filename.absolute()}") 
