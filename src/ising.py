@@ -20,7 +20,8 @@ CONFIGS_DIR.mkdir(exist_ok=True)
 def animate(frame, q, U, V, N, frame_text):
     for _ in range(N * N):
         metropolis(V, N, J, H, T)
-    q.set_UVC(U, V, V)
+        q.set_UVC(U, V, V)
+
     frame_text.set_text(f"Frame: {frame}.")
 
     return q, frame_text
@@ -43,26 +44,23 @@ def main():
 
     user_input = input("Enter a filename for the animation (default: ising): ").strip()
     base_name = user_input if user_input else "ising"
-    #temp_path = Path(base_name)
-    #extension = ".mp4"
     filename = ANIMATIONS_DIR / f"{Path(base_name).stem}_{N}.gif"
-    #filename = ANIMATIONS_DIR / f"{temp_path.stem}_{N}{extension}"
     
     if filename.exists():
         print(f"'{filename.name}' found in {ANIMATIONS_DIR.name}. Visualizing...")
         os.system(f"xdg-open {filename.absolute()}")
         sys.exit()
 
-    print(f"Filename determined: {filename.name}. Starting simulation with N={N}, T={T}, J={J}")
+    print(f"Filename determined: {filename.name}. Starting simulation with N={N}, T={T}, J={J}, h={H}")
 
     X, Y = np.meshgrid(np.arange(0, N, 1), np.arange(0, N, 1))
     U, V = np.zeros_like(X), np.random.choice([-1, 1], size=(N, N))
-    
+
     plt.style.use("dark_background")
     fig, ax = plt.subplots()
     props = {"boxstyle": "round", "facecolor": "white", "alpha": 0.9, "edgecolor": "none"}
     frame_text = ax.text(0.02, 0.95, "", transform=ax.transAxes, color="black", bbox=props)
-    ax.set_title(f"Lattice with {N} points, J={J}, h={H}, T={T}")
+    ax.set_title(rf"Lattice with ${N} \times{N}$ points, J={J}, h={H}, T={T}")
     q = ax.quiver(X, Y, U, V, V, cmap="bwr", pivot="mid")
 
     ani = FuncAnimation(
@@ -73,10 +71,8 @@ def main():
         interval=40,
         blit=True
     )
-    #output_file = filename.with_suffix('.mp4') 
     print(f"Saving {filename}...")
-    #ani.save(filename=filename, writer="pillow", dpi=80)
-    #ani.save(output_file, writer='ffmpeg', fps=30, bitrate=1800, dpi=100, extra_args=['-vcodec', 'libx264', '-pix_fmt', 'yuv420p'])
+    ani.save(filename=filename, writer="pillow", dpi=80)
     inp = input(f"{filename.name} saved. Press enter to visualize, or type 'no': ")
     if inp.lower() != "no":
         os.system(f"xdg-open {filename.absolute()}") 
