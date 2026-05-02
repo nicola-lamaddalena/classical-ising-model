@@ -43,7 +43,10 @@ def main():
 
     user_input = input("Enter a filename for the animation (default: ising): ").strip()
     base_name = user_input if user_input else "ising"
+    #temp_path = Path(base_name)
+    #extension = ".mp4"
     filename = ANIMATIONS_DIR / f"{Path(base_name).stem}_{N}.gif"
+    #filename = ANIMATIONS_DIR / f"{temp_path.stem}_{N}{extension}"
     
     if filename.exists():
         print(f"'{filename.name}' found in {ANIMATIONS_DIR.name}. Visualizing...")
@@ -70,9 +73,10 @@ def main():
         interval=40,
         blit=True
     )
-    
+    #output_file = filename.with_suffix('.mp4') 
     print(f"Saving {filename}...")
-    ani.save(filename=filename, writer="pillow", dpi=200)
+    #ani.save(filename=filename, writer="pillow", dpi=80)
+    #ani.save(output_file, writer='ffmpeg', fps=30, bitrate=1800, dpi=100, extra_args=['-vcodec', 'libx264', '-pix_fmt', 'yuv420p'])
     inp = input(f"{filename.name} saved. Press enter to visualize, or type 'no': ")
     if inp.lower() != "no":
         os.system(f"xdg-open {filename.absolute()}") 
