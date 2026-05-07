@@ -5,6 +5,7 @@ from pathlib import Path
 import numpy as np
 import matplotlib.pyplot as plt
 from matplotlib.animation import FuncAnimation
+from matplotlib.colors import ListedColormap
 from metro import metropolis
 
 J, H, T = 1.0, 0.0, 2.269
@@ -16,11 +17,14 @@ CONFIGS_DIR = ROOT / "configs"
 
 ANIMATIONS_DIR.mkdir(exist_ok=True)
 CONFIGS_DIR.mkdir(exist_ok=True)
+CMAP = ListedColormap(["#0739ad", "#d90b26"])
+
 
 def animate(frame, q, U, V, N, frame_text):
-    for _ in range(N * N):
+    steps_per_frame = N * 10
+    for _ in range(steps_per_frame):
         metropolis(V, N, J, H, T)
-        q.set_UVC(U, V, V)
+    q.set_UVC(U, V, V)
 
     frame_text.set_text(f"Frame: {frame}.")
 
@@ -57,22 +61,22 @@ def main():
     U, V = np.zeros_like(X), np.random.choice([-1, 1], size=(N, N))
 
     plt.style.use("dark_background")
-    fig, ax = plt.subplots()
+    fig, ax = plt.subplots(figsize=(10,10))
     props = {"boxstyle": "round", "facecolor": "white", "alpha": 0.9, "edgecolor": "none"}
     frame_text = ax.text(0.02, 0.95, "", transform=ax.transAxes, color="black", bbox=props)
-    ax.set_title(rf"Lattice with ${N} \times{N}$ points, J={J}, h={H}, T={T}")
-    q = ax.quiver(X, Y, U, V, V, cmap="bwr", pivot="mid")
+    ax.set_title(rf"Lattice with ${N} \times{N}$ points, $J={J}$, $h={H}$, $T={T}$")
+    q = ax.quiver(X, Y, U, V, V, cmap=CMAP, pivot="mid", antialiased=False, headwidth=3, headlength=3)
 
     ani = FuncAnimation(
         fig,
         animate,
         fargs=(q, U, V, N, frame_text),
-        frames=180,
-        interval=40,
+        frames=240,
+        interval=33,
         blit=True
     )
     print(f"Saving {filename}...")
-    ani.save(filename=filename, writer="pillow", dpi=80)
+    ani.save(filename=filename, writer="pillow", fps=30, dpi=80)
     inp = input(f"{filename.name} saved. Press enter to visualize, or type 'no': ")
     if inp.lower() != "no":
         os.system(f"xdg-open {filename.absolute()}") 
