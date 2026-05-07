@@ -1,4 +1,3 @@
 ./venv
 /src/__pycache__/
 ./animations/*.gif
-!./animations/ising_100.gif
