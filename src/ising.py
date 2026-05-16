@@ -10,6 +10,7 @@ from matplotlib.animation import FuncAnimation
 from matplotlib.colors import ListedColormap
 from matplotlib.lines import Line2D
 from metro import metropolis
+from utils import magnetization, energy
 
 J, H, T = 1.0, 0.0, 2.269
 
@@ -22,15 +23,20 @@ ANIMATIONS_DIR.mkdir(exist_ok=True)
 CONFIGS_DIR.mkdir(exist_ok=True)
 CMAP = ListedColormap(["#d90b26", "#0739ad"])
 
-def animate(frame, q, V, N, J, H, T, frame_text, even_mask):
+def animate(frame, q, V, N, J, H, T, frame_text, even_mask, hist_frames, hist_magn, hist_eng, magn_line, eng_line):
     steps_per_frame = 1
     for _ in range(steps_per_frame):
         metropolis(V, N, J, H, T, even_mask)
+        hist_frames.append(frame)
+        hist_magn.append(magnetization(V))
+        hist_eng.append(energy(V, J))
     q.set_data(V)
+    magn_line.set_data(hist_frames, hist_magn)
+    eng_line.set_data(hist_frames, hist_eng)
 
     frame_text.set_text(f"Frame: {frame}.")
 
-    return q, frame_text
+    return q, frame_text, magn_line, eng_line
 
 def main():
     CONFIG_FILE = CONFIGS_DIR / "configs.json"
@@ -76,26 +82,43 @@ def main():
     even_mask = np.zeros((N,N), dtype=bool)
     even_mask[::2, ::2] = True # even columns and even rows
     even_mask[1::2, 1::2] = True # odd columns and odd rows
+    hist_frames, hist_magn, hist_eng = [], [], []
 
     plt.style.use("dark_background")
-    fig, ax = plt.subplots(figsize=(10,10))
-    ax.set_xlabel("Lattice width")
-    ax.set_ylabel("Lattice height")
+    #fig, ax = plt.subplots(figsize=(10,10))
+    #ax.set_xlabel("Lattice width")
+    #ax.set_ylabel("Lattice height")
     props = {"boxstyle": "round", "facecolor": "white", "alpha": 0.9, "edgecolor": "none"}
-    frame_text = ax.text(0.02, 0.95, "", transform=ax.transAxes, color="black", bbox=props)
-    ax.set_title(rf"Lattice with ${N} \times{N}$ points, $J={J}$, $h={H}$, $T={T}$")
-    q = ax.imshow(V, cmap=CMAP, interpolation="nearest", origin="lower")
+    #frame_text = ax.text(0.02, 0.95, "", transform=ax.transAxes, color="black", bbox=props)
+    #ax.set_title(rf"Lattice with ${N} \times{N}$ points, $J={J}$, $h={H}$, $T={T}$")
+    #q = ax.imshow(V, cmap=CMAP, interpolation="nearest", origin="lower")
     legend_el = [
             Line2D([0], [0], marker=r"$\uparrow$", color="none", label="Spin up (+1)", markerfacecolor=CMAP(1.0), markersize=15, markeredgecolor="none"), 
             Line2D([0], [0], marker=r"$\downarrow$", color="none", label="Spin down (-1)", markerfacecolor=CMAP(0), markersize=15, markeredgecolor="none")
         ]
-    ax.legend(handles=legend_el, loc="upper right", bbox_to_anchor=(1.0, 1.0), borderaxespad=0.1, labelspacing=1.5, framealpha=0.6)
-    plt.tight_layout()
+    #ax.legend(handles=legend_el, loc="upper right", bbox_to_anchor=(1.0, 1.0), borderaxespad=0.1, labelspacing=1.5, framealpha=0.6)
+    from matplotlib.gridspec import GridSpec
+    fig = plt.figure(figsize=(12,8), constrained_layout=True)
+    gs = GridSpec(nrows=2, ncols=2, width_ratios=[2,1], figure=fig)
+    ax_main = fig.add_subplot(gs[:,0])
+    ax_top = fig.add_subplot(gs[0,1])
+    ax_bottom = fig.add_subplot(gs[1,1])
+    ax_top.set_xlim(0, FRAMES)
+    ax_top.set_ylim(-1.05, 1.05)
+    ax_bottom.set_xlim(0, FRAMES)
+    ax_bottom.set_ylim(-2.05, 0.05)
+    magn_line, = ax_top.plot([], [], color="white")
+    eng_line, = ax_bottom.plot([], [], color="cyan")
+    q = ax_main.imshow(V, cmap=CMAP, interpolation="nearest", origin="lower")
+    frame_text = ax_main.text(0.02, 0.95, "", transform=ax_main.transAxes, color="black", bbox=props)
+
+
+    #plt.tight_layout()
     
     ani = FuncAnimation(
         fig,
         animate,
-        fargs=(q, V, N, J, H, T, frame_text, even_mask),
+        fargs=(q, V, N, J, H, T, frame_text, even_mask, hist_frames, hist_magn, hist_eng, magn_line, eng_line),
         frames=FRAMES,
         interval=50,
         blit=True
