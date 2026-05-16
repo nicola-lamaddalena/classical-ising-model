@@ -1,18 +1,22 @@
+import argparse
 import json
 import os
 import sys
 import time
-import argparse
 from pathlib import Path
 import numpy as np
 import matplotlib.pyplot as plt
 from matplotlib.animation import FuncAnimation
 from matplotlib.colors import ListedColormap
 from matplotlib.lines import Line2D
+from matplotlib.gridspec import GridSpec
 from metro import metropolis
 from utils import magnetization, energy
 
-J, H, T = 1.0, 0.0, 2.269
+BKG_COLOR = "#E9EEF3"
+DOWN_COLOR = "#DB1919"
+UP_COLOR = "#1851F0"
+MAIN_COLOR = "#191923"
 
 ROOT = Path(__file__).resolve().parent.parent
 ANIMATIONS_DIR = ROOT / "animations"
@@ -21,7 +25,7 @@ CONFIGS_DIR = ROOT / "configs"
 
 ANIMATIONS_DIR.mkdir(exist_ok=True)
 CONFIGS_DIR.mkdir(exist_ok=True)
-CMAP = ListedColormap(["#d90b26", "#0739ad"])
+CMAP = ListedColormap([DOWN_COLOR, UP_COLOR])
 
 def animate(frame, q, V, N, J, H, T, frame_text, even_mask, hist_frames, hist_magn, hist_eng, magn_line, eng_line):
     steps_per_frame = 1
@@ -39,8 +43,9 @@ def animate(frame, q, V, N, J, H, T, frame_text, even_mask, hist_frames, hist_ma
     return q, frame_text, magn_line, eng_line
 
 def main():
-    CONFIG_FILE = CONFIGS_DIR / "configs.json"
+    props = {"boxstyle": "round", "facecolor": BKG_COLOR, "alpha": 0.9, "edgecolor": MAIN_COLOR}
 
+    CONFIG_FILE = CONFIGS_DIR / "configs.json"
     if not CONFIG_FILE.exists():
         print(f"Error: {CONFIG_FILE} not found.")
         return
@@ -84,36 +89,43 @@ def main():
     even_mask[1::2, 1::2] = True # odd columns and odd rows
     hist_frames, hist_magn, hist_eng = [], [], []
 
-    plt.style.use("dark_background")
-    #fig, ax = plt.subplots(figsize=(10,10))
-    #ax.set_xlabel("Lattice width")
-    #ax.set_ylabel("Lattice height")
-    props = {"boxstyle": "round", "facecolor": "white", "alpha": 0.9, "edgecolor": "none"}
-    #frame_text = ax.text(0.02, 0.95, "", transform=ax.transAxes, color="black", bbox=props)
-    #ax.set_title(rf"Lattice with ${N} \times{N}$ points, $J={J}$, $h={H}$, $T={T}$")
-    #q = ax.imshow(V, cmap=CMAP, interpolation="nearest", origin="lower")
     legend_el = [
             Line2D([0], [0], marker=r"$\uparrow$", color="none", label="Spin up (+1)", markerfacecolor=CMAP(1.0), markersize=15, markeredgecolor="none"), 
             Line2D([0], [0], marker=r"$\downarrow$", color="none", label="Spin down (-1)", markerfacecolor=CMAP(0), markersize=15, markeredgecolor="none")
         ]
-    #ax.legend(handles=legend_el, loc="upper right", bbox_to_anchor=(1.0, 1.0), borderaxespad=0.1, labelspacing=1.5, framealpha=0.6)
-    from matplotlib.gridspec import GridSpec
     fig = plt.figure(figsize=(12,8), constrained_layout=True)
-    gs = GridSpec(nrows=2, ncols=2, width_ratios=[2,1], figure=fig)
+    fig.patch.set_facecolor(BKG_COLOR)
+    gs = GridSpec(
+            nrows=2, 
+            ncols=2, 
+            width_ratios=[2,1], 
+            figure=fig
+        )
+
     ax_main = fig.add_subplot(gs[:,0])
+    ax_main.legend(handles=legend_el, loc="upper right", bbox_to_anchor=(1.0, 1.0), borderaxespad=0.1, labelspacing=1.5, framealpha=0.8)
+    ax_main.set_title(rf"Lattice with $N={N**2}$ points, $T={T}$, $J={J}$.")
+    ax_main.set_xlabel("Lattice width")
+    ax_main.set_ylabel("Lattice height")
+
     ax_top = fig.add_subplot(gs[0,1])
-    ax_bottom = fig.add_subplot(gs[1,1])
+    ax_top.set_title("Average magnetization per spin")
     ax_top.set_xlim(0, FRAMES)
     ax_top.set_ylim(-1.05, 1.05)
+    ax_top.set_xlabel("Frames")
+    ax_top.set_ylabel("Average magnetization")
+
+    ax_bottom = fig.add_subplot(gs[1,1])
+    ax_bottom.set_title("Average energy per spin")
     ax_bottom.set_xlim(0, FRAMES)
     ax_bottom.set_ylim(-2.05, 0.05)
-    magn_line, = ax_top.plot([], [], color="white")
-    eng_line, = ax_bottom.plot([], [], color="cyan")
+    ax_bottom.set_xlabel("Frames")
+    ax_bottom.set_ylabel("Average energy [J]")
+
+    magn_line, = ax_top.plot([], [], color=UP_COLOR)
+    eng_line, = ax_bottom.plot([], [], color=DOWN_COLOR)
     q = ax_main.imshow(V, cmap=CMAP, interpolation="nearest", origin="lower")
-    frame_text = ax_main.text(0.02, 0.95, "", transform=ax_main.transAxes, color="black", bbox=props)
-
-
-    #plt.tight_layout()
+    frame_text = ax_main.text(0.02, 0.95, "", transform=ax_main.transAxes, color=MAIN_COLOR, bbox=props)
     
     ani = FuncAnimation(
         fig,
