@@ -136,7 +136,7 @@ def main():
         blit=True
     )
     print(f"Saving {filename}...")
-    ani.save(filename=filename, writer="pillow", fps=30, dpi=80)
+    ani.save(filename=filename, writer="pillow", fps=30, dpi=150)
     elapsed_time = time.time() - start_time
     mins, secs = divmod(elapsed_time, 60)
     inp = input(f"{filename.name} saved in {int(mins)}m {secs:.2f}s. Press enter to visualize, or type 'no': ")
