@@ -14,8 +14,10 @@ from metro import metropolis
 from utils import magnetization, energy
 
 BKG_COLOR = "#E9EEF3"
-DOWN_COLOR = "#DB1919"
-UP_COLOR = "#1851F0"
+#DOWN_COLOR = "#DB1919"
+#UP_COLOR = "#1851F0"
+DOWN_COLOR = "#c83e3e"
+UP_COLOR = "#3b60e4"
 MAIN_COLOR = "#191923"
 
 ROOT = Path(__file__).resolve().parent.parent
@@ -136,7 +138,7 @@ def main():
         blit=True
     )
     print(f"Saving {filename}...")
-    ani.save(filename=filename, writer="pillow", fps=30, dpi=150)
+    ani.save(filename=filename, writer="pillow", fps=30, dpi=70)
     elapsed_time = time.time() - start_time
     mins, secs = divmod(elapsed_time, 60)
     inp = input(f"{filename.name} saved in {int(mins)}m {secs:.2f}s. Press enter to visualize, or type 'no': ")
