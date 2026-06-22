@@ -14,8 +14,6 @@ from metro import metropolis
 from utils import magnetization, energy
 
 BKG_COLOR = "#E9EEF3"
-#DOWN_COLOR = "#DB1919"
-#UP_COLOR = "#1851F0"
 DOWN_COLOR = "#c83e3e"
 UP_COLOR = "#3b60e4"
 MAIN_COLOR = "#191923"
@@ -60,8 +58,8 @@ def main():
             formatter_class=argparse.ArgumentDefaultsHelpFormatter
             )
     choices = list(config_data.keys()) # update list of configurations 
-    parser.add_argument("-M", "--mode", type=str, default="crit", choices=choices, help="Preset configuration (low, critic, high)")
-    parser.add_argument("-f", "--file", type=str, help="Choose a name for the animation file")
+    parser.add_argument("-M", "--mode", type=str, default="crit", help=f"Preset configurations ({choices})")
+    parser.add_argument("-F", "--file", type=str, help="Choose a name for the animation file")
     parser.add_argument("--view", action="store_true", help="View existing animation without simulating")
     args = parser.parse_args()
 
@@ -75,7 +73,7 @@ def main():
 
     user_input = input(f"Enter a filename for the animation (default: {mode}): ").strip()
     base_name = user_input if user_input else mode
-    filename = ANIMATIONS_DIR / f"{Path(base_name).stem}.gif"
+    filename = ANIMATIONS_DIR / f"{Path(base_name).stem}.mp4"
     
     if filename.exists():
         print(f"'{filename.name}' found in {ANIMATIONS_DIR.name}. Visualizing...")
@@ -138,7 +136,14 @@ def main():
         blit=True
     )
     print(f"Saving {filename}...")
-    ani.save(filename=filename, writer="pillow", fps=30, dpi=70)
+    ani.save(
+            filename=filename, 
+            writer="ffmpeg", 
+            fps=30, 
+            dpi=200,
+            codec="libx264",
+            extra_args=["-pix_fmt", "yuv420p", "-vprofile", "main", "-level", "3.1"]
+        )
     elapsed_time = time.time() - start_time
     mins, secs = divmod(elapsed_time, 60)
     inp = input(f"{filename.name} saved in {int(mins)}m {secs:.2f}s. Press enter to visualize, or type 'no': ")

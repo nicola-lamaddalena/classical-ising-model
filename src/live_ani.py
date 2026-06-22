@@ -14,7 +14,7 @@ pg.setConfigOption('foreground', MAIN_COLOR)
 class IsingMVP(QMainWindow):
     def __init__(self):
         super().__init__()
-        self.setWindowTitle("Modello di Ising 2D classico - Temperatura critica")
+        self.setWindowTitle("Classical 2D Ising model - Critical temperature")
         self.resize(1024, 768) 
         self.DOWN_COLOR = (200, 62, 62)
         self.UP_COLOR = (59, 96, 228)
@@ -45,7 +45,7 @@ class IsingMVP(QMainWindow):
         self.temp_slider.setValue(227)     # T = 2.27
         self.temp_slider.valueChanged.connect(self.update_temperature)
 
-        self.tc_button = QPushButton("Temperatura Critica (Tc = 2.269)")
+        self.tc_button = QPushButton("Critical temperature (Tc = 2.269)")
         self.tc_button.setStyleSheet(f"background-color: {BKG_COLOR}; color: {MAIN_COLOR}; font-weight: bold; padding: 5px;")
         self.tc_button.clicked.connect(self.reset_to_critical_temp)
 
@@ -58,12 +58,12 @@ class IsingMVP(QMainWindow):
         vbox_right = QVBoxLayout()
         hbox.addLayout(vbox_right, stretch=1)
 
-        self.mag_plot = pg.PlotWidget(title="Magnetizzazione media per spin")
+        self.mag_plot = pg.PlotWidget(title="Average magnetization per spin")
         self.mag_plot.setYRange(-1.1, 1.1)
         self.mag_curve = self.mag_plot.plot(pen=self.UP_COLOR)
         vbox_right.addWidget(self.mag_plot)
         
-        self.energy_plot = pg.PlotWidget(title="Energia media per spin")
+        self.energy_plot = pg.PlotWidget(title="Average energy per spin")
         self.energy_plot.setYRange(-2.1, 0.1)
         self.energy_curve = self.energy_plot.plot(pen=self.UP_COLOR)
         vbox_right.addWidget(self.energy_plot)
@@ -87,11 +87,11 @@ class IsingMVP(QMainWindow):
 
     def update_temperature(self, value):
         self.T = value / 100.0
-        self.statusBar().showMessage(f"Temperatura corrente: {self.T:.2f}")
+        self.statusBar().showMessage(f"Current temperature: {self.T:.2f}")
     
     def update_acc(self, value):
         self.acc = value
-        self.statusBar().showMessage(f"Accoppiamento corrente: {self.acc}")
+        self.statusBar().showMessage(f"Current coupling: {self.acc}")
 
     def simulation_step(self):
         metropolis(self.lattice, self.N, J=self.acc, h=self.h, T=self.T, even_mask=self.even_mask)
@@ -111,7 +111,7 @@ class IsingMVP(QMainWindow):
 
 
     def reset_to_critical_temp(self):
-        """Riporta istantaneamente lo slider e la variabile T al valore critico."""
+        """Set the slider and the temperature value to the critical point."""
         self.temp_slider.setValue(227)
 
 if __name__ == "__main__":
