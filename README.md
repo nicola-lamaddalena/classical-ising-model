@@ -1,16 +1,16 @@
 # Classical 2D Ising model simulation in Python.
 
-A Python implementation of the 2D classical Ising classical on a square lattice, featuring the Checkerboard Metropolis algorithm vectorized via Numpy, with static rendering of GIFs (Matplotlib) and real-time interactive simulation (PyQt6).
+A Python implementation of the 2D classical Ising classical on a square lattice, featuring the Checkerboard Metropolis algorithm vectorized via Numpy, with static rendering of mp4 (Matplotlib) and real-time interactive simulation (PyQt6).
 
 ## Usage
 Clone the repository and install the required dependencies:
 ```
-git clone 
-cd 
+git clone https://github.com/nicola-lamaddalena/classical-ising-model.git 
+cd classical-ising-model
 pip install -r requirements.txt
 cd src
 ```
-To generate a pre-rendered GIF use:
+To generate a pre-rendered mp4 use:
 ```
 python3 ising.py
 ```
@@ -39,5 +39,5 @@ python3 ising.py --help
 
 ## Demo
 Here is a demo created in Matplotlib with lattice dimensions $256\times256$ at the critical temperature.
-![Ising Model Simulation](./animations/crit_256.gif)
+![Ising Model Simulation](./animations/crit_demo.mp4)
 
