@@ -38,6 +38,6 @@ python3 ising.py --help
 ```
 
 ## Demo
-Here is a demo created in Matplotlib with lattice dimensions $256\times256$ at the critical temperature.
+Here is a demo created in Matplotlib with lattice dimensions $128 \times 128$ at the critical temperature.
 ![Ising Model Simulation](./animations/crit_demo.mp4)
 
