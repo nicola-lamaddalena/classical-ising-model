@@ -1,6 +1,6 @@
 # Classical 2D Ising model simulation in Python.
 
-A Python implementation of the 2D classical Ising classical on a square lattice, featuring the Checkerboard Metropolis algorithm vectorized via Numpy, with static rendering of mp4 (Matplotlib) and real-time interactive simulation (PyQt6).
+A Python implementation of the 2D classical Ising classical on a square lattice, featuring the Checkerboard Metropolis algorithm vectorized via Numpy, with static rendering of mp4 (Matplotlib) and real-time interactive simulation (PyQt5).
 
 ## Usage
 Clone the repository and install the required dependencies:
