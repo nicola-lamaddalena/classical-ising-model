@@ -1,6 +1,6 @@
 import numpy as np
 
-rng = np.random.default_rng(seed=42)
+rng = np.random.default_rng()
 
 def metropolis(lattice: np.ndarray, N: int, J: float, h: float, T: float, even_mask: np.ndarray) -> None:
     """Metropolis algorithm for classical Ising model:
