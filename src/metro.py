@@ -2,7 +2,7 @@ import numpy as np
 
 rng = np.random.default_rng()
 
-def metropolis(lattice: np.ndarray, N: int, J: float, h: float, T: float, even_mask: np.ndarray) -> None:
+def metropolis(lattice: np.ndarray, N: int, J: float, h: float, T: float, even_mask: np.ndarray, rng: np.random.Generator) -> None:
     """Metropolis algorithm for classical Ising model:
     choose a random point in the lattice and compute the variation of energy;
     if it's negative, accept the change; otherwise evaluate the transition probability 

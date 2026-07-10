@@ -12,7 +12,7 @@ pg.setConfigOption('background', BKG_COLOR)
 pg.setConfigOption('foreground', MAIN_COLOR)
 
 class IsingMVP(QMainWindow):
-    def __init__(self):
+    def __init__(self, seed: int):
         super().__init__()
         self.setWindowTitle("Classical 2D Ising model - Critical temperature")
         self.resize(1024, 768) 
@@ -23,6 +23,7 @@ class IsingMVP(QMainWindow):
         self.acc = 1
         self.h = 0.0
         self.lattice = np.random.choice([-1, 1], size=(self.N, self.N))
+        self.rng = np.random.default_rng(seed)
         
         self.even_mask = np.zeros((self.N, self.N), dtype=bool)
         self.even_mask[::2, ::2] = True
@@ -94,7 +95,7 @@ class IsingMVP(QMainWindow):
         self.statusBar().showMessage(f"Current coupling: {self.acc}")
 
     def simulation_step(self):
-        metropolis(self.lattice, self.N, J=self.acc, h=self.h, T=self.T, even_mask=self.even_mask)
+        metropolis(self.lattice, self.N, J=self.acc, h=self.h, T=self.T, even_mask=self.even_mask, rng=self.rng)
         self.image_view.setImage(self.lattice, autoLevels=False)
 
         m = magnetization(self.lattice)
@@ -116,6 +117,6 @@ class IsingMVP(QMainWindow):
 
 if __name__ == "__main__":
     app = QApplication(sys.argv)
-    window = IsingMVP()
+    window = IsingMVP(seed=None)
     window.show()
     sys.exit(app.exec())

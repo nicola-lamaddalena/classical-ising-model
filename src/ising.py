@@ -43,10 +43,10 @@ class State:
     hist_magn: list = field(default_factory=list)
     hist_eng: list = field(default_factory=list)
 
-def animate(frame, q, state, frame_text, magn_line, eng_line):
+def animate(frame, q, state, frame_text, magn_line, eng_line, rng):
     steps_per_frame = 1
     for _ in range(steps_per_frame):
-        metropolis(state.V, state.N, state.J, state.H, state.T, state.even_mask)
+        metropolis(state.V, state.N, state.J, state.H, state.T, state.even_mask, rng)
         state.hist_frames.append(frame)
         state.hist_magn.append(magnetization(state.V))
         state.hist_eng.append(energy(state.V, state.J))
@@ -79,7 +79,10 @@ def pars_file(config_data):
     # "py ising.py -F test --view" should visualize the test animation
     # "py ising.py --view" should print existing animations 
     parser.add_argument("--view", action="store_true", help="View existing animation without simulating")
+    parser.add_argument("--seed", type=int, default=None,
+                     help="Random generator seed (default: None)")
     args = parser.parse_args()
+
 
     mode = args.mode
     conf = config_data[mode]
@@ -88,8 +91,9 @@ def pars_file(config_data):
     J = conf["J"]
     H = conf["H"]
     FRAMES = conf["frames"]
+    seed = conf["seed"]
 
-    return args, mode, N, T, J, H, FRAMES
+    return args, mode, N, T, J, H, FRAMES, seed
 
 def init_simulation_state(N, J, T, H):
     V = np.random.choice([-1, 1], size=(N, N))
@@ -155,7 +159,7 @@ def setup_figure(V, N, J, T, FRAMES):
 def main():
 
     config_data = configuration(CONFIG_FILE)
-    args, mode, N, T, J, H, FRAMES = pars_file(config_data)
+    args, mode, N, T, J, H, FRAMES, seed = pars_file(config_data)
     state = init_simulation_state(N, J, T, H)
     base_name = args.file if args.file else mode
     filename = ANIMATIONS_DIR / f"{Path(base_name).stem}.mp4"
@@ -173,7 +177,7 @@ def main():
     ani = FuncAnimation(
         fig,
         animate,
-        fargs=(q, state, frame_text, magn_line, eng_line),
+        fargs=(q, state, frame_text, magn_line, eng_line, seed),
         frames=FRAMES,
         interval=50,
         blit=True
