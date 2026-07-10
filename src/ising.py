@@ -75,12 +75,12 @@ def pars_file(config_data):
     choices = list(config_data.keys()) # update list of configurations 
     parser.add_argument("-M", "--mode", type=str, default="crit", help=f"Preset configurations ({choices})")
     parser.add_argument("-F", "--file", type=str, help="Choose a name for the animation file")
-    # TODO change view implementation: 
-    # "py ising.py -F test --view" should visualize the test animation
-    # "py ising.py --view" should print existing animations 
     parser.add_argument("--view", action="store_true", help="View existing animation without simulating")
     parser.add_argument("--seed", type=int, default=None,
                      help="Random generator seed (default: None)")
+    # TODO change view implementation: 
+    # "py ising.py -F test --view" should visualize the test animation
+    # "py ising.py --view" should print existing animations 
     args = parser.parse_args()
 
 
@@ -91,9 +91,9 @@ def pars_file(config_data):
     J = conf["J"]
     H = conf["H"]
     FRAMES = conf["frames"]
-    seed = conf["seed"]
+    therm_steps = conf["therm_steps"]
 
-    return args, mode, N, T, J, H, FRAMES, seed
+    return args, mode, N, T, J, H, FRAMES, therm_steps
 
 def init_simulation_state(N, J, T, H):
     V = np.random.choice([-1, 1], size=(N, N))
@@ -101,6 +101,10 @@ def init_simulation_state(N, J, T, H):
     even_mask[::2, ::2] = True # even columns and even rows
     even_mask[1::2, 1::2] = True # odd columns and odd rows
     return State(N=N, T=T, J=J, H=H, V=V, even_mask=even_mask)
+
+def thermalize(state: State, therm_steps: int, rng: np.random.Generator):
+    for _ in range(therm_steps):
+        metropolis(state.V, state.N, state.J, state.H, state.T, state.even_mask, rng)
 
 def open_media(filepath):
     filepath_str = str(filepath)
@@ -159,7 +163,7 @@ def setup_figure(V, N, J, T, FRAMES):
 def main():
 
     config_data = configuration(CONFIG_FILE)
-    args, mode, N, T, J, H, FRAMES, seed = pars_file(config_data)
+    args, mode, N, T, J, H, FRAMES, therm_steps = pars_file(config_data)
     state = init_simulation_state(N, J, T, H)
     base_name = args.file if args.file else mode
     filename = ANIMATIONS_DIR / f"{Path(base_name).stem}.mp4"
@@ -173,11 +177,13 @@ def main():
     fig, magn_line, eng_line, q, frame_text = setup_figure(state.V, state.N, state.J, state.T, FRAMES)
 
     start_time = time.time()
+    print(f"Thermalizing with {therm_steps} steps.")
+    thermalize(state, therm_steps, args.seed)
     
     ani = FuncAnimation(
         fig,
         animate,
-        fargs=(q, state, frame_text, magn_line, eng_line, seed),
+        fargs=(q, state, frame_text, magn_line, eng_line, args.seed),
         frames=FRAMES,
         interval=50,
         blit=True

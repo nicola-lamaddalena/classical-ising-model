@@ -1,4 +1,7 @@
 import numpy as np
+from metro import metropolis
+
+
 
 def magnetization(lattice: np.ndarray) -> float:
     return np.sum(lattice) / lattice.size
